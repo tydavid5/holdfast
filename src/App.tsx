@@ -18,6 +18,7 @@ import {
   connectWallet,
   DEMO_EVM_ADDRESS,
   DEMO_NIM_ADDRESS,
+  explorerUrlFor,
   mintTestUsdt,
   refreshBalances,
   sendNim,
@@ -71,6 +72,7 @@ export default function App() {
   const [status, setStatus] = useState<{ kind: "ok" | "error" | "info"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [minting, setMinting] = useState(false);
+  const [confirmingReset, setConfirmingReset] = useState(false);
 
   const jar: Jar | null = state.jar;
   const policy: Policy = state.policy;
@@ -168,6 +170,31 @@ export default function App() {
     );
     setState((prev) => ({ ...prev, jar: newJar, ledger: [entry, ...prev.ledger] }));
     setStatus({ kind: "ok", text: `Jar "${name}" is ready. Deposit to start saving.` });
+  }
+
+  // Wipe the jar, its rules and its ledger from this device, so the whole
+  // flow can be run again from scratch. Nothing moves on chain: deposits
+  // went to the user's own wallet address, so the funds stay there.
+  function resetJar() {
+    setState((prev) => ({
+      ...prev,
+      jar: null,
+      policy: { ...DEFAULT_POLICY, allowlist: [...DEFAULT_POLICY.allowlist] },
+      ledger: [],
+    }));
+    setJarName("");
+    setJarGoal("500");
+    setJarCurrency("NIM");
+    setRuleCap(String(DEFAULT_POLICY.perWithdrawalCap));
+    setRuleDaily(String(DEFAULT_POLICY.dailyCap));
+    setRuleConfirm(String(DEFAULT_POLICY.confirmAbove));
+    setAllowInput("");
+    setDepositAmount("");
+    setWithdrawAmount("");
+    setWithdrawTo("");
+    setPendingConfirm(null);
+    setConfirmingReset(false);
+    setStatus({ kind: "info", text: "Jar wiped. Your funds stay in your own wallet, nothing moved on chain. Create a new jar to start again." });
   }
 
   function saveRules() {
@@ -283,6 +310,7 @@ export default function App() {
             amount,
             currency: jar.currency,
             txRef: outcome.ref ?? undefined,
+            explorerUrl: outcome.ref ? explorerUrlFor(jar.currency, wallet.network, outcome.ref) : undefined,
           }),
         );
         setStatus({
@@ -342,6 +370,7 @@ export default function App() {
             to,
             decision: "ALLOWED",
             txRef: outcome.ref ?? undefined,
+            explorerUrl: outcome.ref ? explorerUrlFor(jar.currency, wallet.network, outcome.ref) : undefined,
           }),
         );
         setStatus({
@@ -622,6 +651,25 @@ export default function App() {
                 <dd>{formatAmount(spent)} {jar.currency} of {formatAmount(policy.dailyCap)} daily cap</dd>
               </div>
             </dl>
+            <button className="btn btn-secondary" onClick={() => setConfirmingReset(true)}>
+              Start over
+            </button>
+            {confirmingReset && (
+              <div className="confirm-box">
+                <p>
+                  Wipe this jar, its rules and its ledger from this device? Your funds stay in your own
+                  wallet, nothing moves on chain.
+                </p>
+                <div className="row">
+                  <button className="btn btn-danger" onClick={resetJar}>
+                    Yes, wipe it
+                  </button>
+                  <button className="btn btn-secondary" onClick={() => setConfirmingReset(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
 
           <section className="card">
@@ -754,7 +802,16 @@ export default function App() {
                     </div>
                     <p>{entry.reason}</p>
                     {entry.txRef && (
-                      <p className="ledger-tx">Transaction reference: {entry.txRef.slice(0, 32)}{entry.txRef.length > 32 ? "..." : ""}</p>
+                      <p className="ledger-tx">
+                        Transaction reference:{" "}
+                        {entry.explorerUrl ? (
+                          <a href={entry.explorerUrl} target="_blank" rel="noreferrer">
+                            {entry.txRef.slice(0, 32)}{entry.txRef.length > 32 ? "..." : ""}
+                          </a>
+                        ) : (
+                          <>{entry.txRef.slice(0, 32)}{entry.txRef.length > 32 ? "..." : ""}</>
+                        )}
+                      </p>
                     )}
                   </li>
                 ))}

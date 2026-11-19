@@ -235,6 +235,15 @@ select:focus {
   border: 1px solid var(--line);
 }
 
+.btn-danger {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #991b1b;
+}
+
 .btn-small {
   padding: 6px 10px;
   font-size: 13px;

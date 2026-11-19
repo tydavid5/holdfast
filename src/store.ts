@@ -33,6 +33,9 @@ export interface LedgerEntry {
   reason: string;
   decision?: string;
   txRef?: string;
+  // Full explorer URL for txRef, captured when the transaction was made.
+  // Stored on the entry so the link stays right even if the network changes later.
+  explorerUrl?: string;
 }
 
 export interface AppState {

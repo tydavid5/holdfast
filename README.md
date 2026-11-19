@@ -13,7 +13,9 @@ You create a jar for a goal, fund it in USDT or NIM, and set rules in plain word
 - Ask me first above a set amount.
 - Only send withdrawals to addresses on my allowlist.
 
-The jar remembers every deposit and withdrawal, and it enforces the rules on every withdrawal attempt. Over the per-withdrawal cap is blocked with a plain-words reason. Over the daily cap is blocked. Above the confirm threshold asks for confirmation first. A destination outside the allowlist is blocked. Every attempt, allowed, blocked or confirmed, is written to a ledger you can see.
+The jar remembers every deposit and withdrawal, and it enforces the rules on every withdrawal attempt. Over the per-withdrawal cap is blocked with a plain-words reason. Over the daily cap is blocked. Above the confirm threshold asks for confirmation first. A destination outside the allowlist is blocked. Every attempt, allowed, blocked or confirmed, is written to a ledger you can see. Real transactions in the ledger link straight to their explorer page, nimiq.watch for NIM and Polygonscan for USDT, so the on-chain proof is one tap away.
+
+You can start over any time: wiping the jar clears the jar, its rules and its ledger from the device, so the whole flow can be run again from scratch. Your funds stay in your own wallet, nothing moves on chain.
 
 ## How it works, honestly
 

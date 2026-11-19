@@ -81,6 +81,24 @@ export function usdtLabelFor(network: Network | null): string {
   return "USDT";
 }
 
+// Explorer URL for a transaction reference, so the ledger can link straight
+// to the on-chain proof. Nimiq uses nimiq.watch (test.nimiq.watch on
+// testnet) with the hash after a #, Polygon uses Polygonscan / Amoy Polygonscan.
+export function explorerUrlFor(
+  currency: Currency,
+  network: Network | null,
+  ref: string,
+): string {
+  if (currency === "NIM") {
+    return network === "testnet"
+      ? `https://test.nimiq.watch/#${ref}`
+      : `https://nimiq.watch/#${ref}`;
+  }
+  return network === "testnet"
+    ? `https://amoy.polygonscan.com/tx/${ref}`
+    : `https://polygonscan.com/tx/${ref}`;
+}
+
 export async function connectWallet(): Promise<WalletInfo> {
   const demo: WalletInfo = {
     mode: "demo",
